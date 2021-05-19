@@ -5,7 +5,7 @@ import asyncio
 
 
 bot = commands.Bot(command_prefix=".")
-token = "ODQ0MjYyNzU4ODQxNDUwNTE2.YKP29w.P3yXpSdmvEMG5VtllstodR_ne2E"
+token = "key"
 
 
 @bot.event
