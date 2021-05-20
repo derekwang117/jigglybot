@@ -7,7 +7,7 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix=".")
 bot.remove_command('help')
-token = os.environ.get('discord_bot_dev_token')
+token = os.environ.get('discord_bot_jiggly_token')
 
 
 @bot.event
