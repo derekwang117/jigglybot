@@ -1,3 +1,4 @@
+import os
 import asyncio
 import random
 
@@ -6,7 +7,7 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix=".")
 bot.remove_command('help')
-token = "insert token here"
+token = os.environ.get('discord_bot_jiggly_token')
 
 
 @bot.event
