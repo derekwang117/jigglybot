@@ -121,7 +121,7 @@ async def spike_blast_zone(ctx, arg: discord.Member = None):
     x = vc_list.index(original_vc)
     x = 0 - (len(vc_list) - x - 1)
     vc_list = vc_list[x:]
-    vc_list = vc_list[:10]
+    vc_list = vc_list[:8]
     for vc in vc_list:
         await arg.move_to(vc)
     await arg.move_to(original_vc)
@@ -135,7 +135,7 @@ async def help(ctx):
         description='help: Shows this message\n'
                     'ping: pong\n'
                     'eject: Vote to kick a member from vc\n'
-                    'spike: Spike a member down 10 channels and brings them back')
+                    'spike: Spike a member down 8 channels and brings them back')
     await ctx.channel.send(embed=embed)
 
 
