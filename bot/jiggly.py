@@ -96,7 +96,7 @@ async def blackjack(ctx):
                     if BlackJack.get_value(board.dealer) < 17:
                         if not board.hit(board.dealer):
                             embed.description += '\n\n{}'.format(board.board_state(user))
-                            embed.description += '\n\nThe Dealer went over 21, you win'
+                            embed.description += '\n\nThe Dealer went over 21, you win!'
                             board.end()
                         else:
                             embed.description += '\n\n{}'.format(board.board_state(user))
@@ -112,6 +112,8 @@ async def blackjack(ctx):
                 embed.description += '\n\nYou have {0} while the dealer has {1}, '.format(p_value, d_value)
                 if p_value > d_value:
                     embed.description += 'you win!'
+                elif p_value == d_value:
+                    embed.description += 'you tie!'
                 else:
                     embed.description += 'you lose!'
                 await message.edit(embed=embed)
