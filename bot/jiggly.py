@@ -73,7 +73,7 @@ async def blackjack(ctx):
 
     board = BlackJackBoard()
     embed = discord.Embed(title='Blackjack with {}'.format(ctx.message.author),
-                          description='{}\n====================='
+                          description='{}\n\nReact H to hit and S to stand\n====================='
                           .format(board.board_state(ctx.message.author), BlackJack.read_hand(board.player)))
     message = await ctx.channel.send(embed=embed)
     await message.add_reaction('🇭')
