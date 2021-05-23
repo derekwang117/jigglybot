@@ -5,6 +5,9 @@ import random
 import discord
 from discord.ext import commands
 
+import BlackJack
+from BlackJack import BlackJackBoard
+
 bot = commands.Bot(command_prefix=".")
 bot.remove_command('help')
 token = os.environ.get('discord_bot_jiggly_token')
@@ -34,6 +37,87 @@ async def ping(ctx):
         await ctx.channel.send('ping')
     else:
         await ctx.channel.send("pong")
+
+
+@bot.command()
+async def roll(ctx, arg: int):
+    x = random.randint(1, arg)
+    await ctx.channel.send('{0} rolls {1} (1-{2})'.format(ctx.message.author, x, arg))
+
+
+@bot.command()
+async def deathroll(ctx, other: discord.Member = None, rolled: int = 0):
+    if other is None or rolled <= 0:
+        return
+    is_other_turn = False
+    while rolled != 1:
+        original = rolled
+        rolled = random.randint(1, rolled)
+        if not is_other_turn:
+            roller = ctx.message.author
+        else:
+            roller = other
+        await ctx.channel.send('{0} rolls {1} (1-{2})'.format(roller, rolled, original))
+        is_other_turn = not is_other_turn
+        await asyncio.sleep(1)
+    await ctx.channel.send('{} lost the roll'.format(roller))
+
+
+@bot.command()
+async def blackjack(ctx):
+    def check(reaction, user):
+        x = user == ctx.message.author
+        y = reaction.message == message
+        z = str(reaction.emoji) == '🇭' or str(reaction.emoji) == '🇸'
+        return x and y and z
+
+    board = BlackJackBoard()
+    embed = discord.Embed(title='Blackjack with {}'.format(ctx.message.author),
+                          description='Your cards are {}\n\n'
+                                      'React H to hit and S to stand\n'
+                                      '====================='.format(BlackJack.read_hand(board.player)))
+    message = await ctx.channel.send(embed=embed)
+    await message.add_reaction('🇭')
+    await message.add_reaction('🇸')
+    while not board.isDone:
+        # get next react
+        try:
+            reaction, user = await bot.wait_for('reaction_add', timeout=60, check=check)
+        except asyncio.TimeoutError:
+            await ctx.channel.send('Blackjack timed out')
+            board.end()
+        else:
+            # if react is hit
+            if str(reaction.emoji) == '🇭':
+                if not board.hit(board.player):
+                    embed.description += '\n\n{0}\n\n{1} went over 21, you bust'.format(board.board_state(user), user)
+                    await message.edit(embed=embed)
+                    board.end()
+                else:
+                    if BlackJack.get_value(board.dealer) < 17:
+                        if not board.hit(board.dealer):
+                            embed.description += '\n\n{}'.format(board.board_state(user))
+                            embed.description += '\n\nThe Dealer went over 21, you win'
+                            board.end()
+                        else:
+                            embed.description += '\n\n{}'.format(board.board_state(user))
+                    embed.description += '\n\n{}'.format(board.board_state(user))
+                    await message.edit(embed=embed)
+
+            # if react is stand
+            else:
+                board.end()
+                p_value = BlackJack.get_value(board.player)
+                d_value = BlackJack.get_value(board.dealer)
+                embed.description += '\n\n{0} has {1} while the dealer has {2}, '.format(user, p_value, d_value)
+                if p_value > d_value:
+                    embed.description += 'you win!'
+                else:
+                    embed.description += 'you lose!'
+                await message.edit(embed=embed)
+
+        if not user.bot:
+            await message.remove_reaction(reaction, user)
 
 
 @bot.command(name='caps')
@@ -137,7 +221,6 @@ async def help(ctx):
                     'eject: Vote to kick a member from vc\n'
                     'spike: Spike a member down 8 channels and brings them back')
     await ctx.channel.send(embed=embed)
-
 
 
 def main():
