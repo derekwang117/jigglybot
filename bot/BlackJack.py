@@ -54,6 +54,7 @@ class BlackJackBoard:
         self.dealer = []
         self.player = []
         self.isDone = False
+        self.isWinner = -1
 
         self.hit(self.player)
         self.hit(self.player)
@@ -86,3 +87,11 @@ class BlackJackBoard:
 
     def end(self):
         self.isDone = True
+
+    @property
+    def isWinner(self):
+        return self.__isWinner
+
+    @isWinner.setter
+    def isWinner(self, int):
+        self.__isWinner = int

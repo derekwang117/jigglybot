@@ -7,6 +7,7 @@ from discord.ext import commands
 
 import BlackJack
 from BlackJack import BlackJackBoard
+import database
 
 bot = commands.Bot(command_prefix=".")
 bot.remove_command('help')
@@ -50,6 +51,7 @@ async def deathroll(ctx, other: discord.Member = None, rolled: int = 0):
     if other is None or rolled <= 0:
         return
     is_other_turn = False
+    roller = ctx.message.author
     while rolled != 1:
         original = rolled
         rolled = random.randint(1, rolled)
@@ -64,74 +66,100 @@ async def deathroll(ctx, other: discord.Member = None, rolled: int = 0):
 
 
 @bot.command()
-async def blackjack(ctx):
+async def coins(ctx):
+    author = ctx.message.author
+    await ctx.channel.send("{0} has {1} coins".format(author.name, database.get_coins(author.id)))
+
+
+@bot.command()
+async def blackjack(ctx, coins: int = 0):
     def check(reaction, user):
         x = user == ctx.message.author
         y = reaction.message == message
         z = str(reaction.emoji) == '🇭' or str(reaction.emoji) == '🇸'
         return x and y and z
 
-    board = BlackJackBoard()
-    embed = discord.Embed(title='Blackjack with {}'.format(ctx.message.author),
-                          description='React H to hit and S to stand\n\n'
-                                      '{0}\n{1}\n'
-                                      '====================='
-                          .format(board.user_state(), board.dealer_start()))
-    message = await ctx.channel.send(embed=embed)
-    await message.add_reaction('🇭')
-    await message.add_reaction('🇸')
-    while not board.isDone:
-        # get next react
-        try:
-            reaction, user = await bot.wait_for('reaction_add', timeout=60, check=check)
-        except asyncio.TimeoutError:
-            await ctx.channel.send('Blackjack timed out')
-            board.end()
-        else:
-            # if react is hit
-            if str(reaction.emoji) == '🇭':
-                embed.description += '\n\nYou hit'
-                if not board.hit(board.player):
-                    embed.description += '\n{}\n\nYou went over 21, you bust'.format(board.user_state())
-                    await message.edit(embed=embed)
-                    board.end()
-                else:
-                    embed.description += '\n{}'.format(board.user_state())
-                    await message.edit(embed=embed)
+    if coins < 0:
+        coins = 0
+    if coins > database.get_coins(ctx.message.author.id):
+        await ctx.channel.send("Sorry, you do not have enough coins to wager that bet")
 
-            # if react is stand
+    else:
+        board = BlackJackBoard()
+        embed = discord.Embed(title='Blackjack with {}'.format(ctx.message.author),
+                              description='React H to hit and S to stand\n\n'
+                                          '{0}\n{1}\n'
+                                          '====================='
+                              .format(board.user_state(), board.dealer_start()))
+        message = await ctx.channel.send(embed=embed)
+
+        reaction = None
+        user = None
+
+        await message.add_reaction('🇭')
+        await message.add_reaction('🇸')
+        while not board.isDone:
+            # get next react
+            try:
+                reaction, user = await bot.wait_for('reaction_add', timeout=60, check=check)
+            except asyncio.TimeoutError:
+                await ctx.channel.send('Blackjack timed out')
+                board.end()
             else:
-                embed.description += '\n\nYou stand'
-                embed.description += '\n{0}\n{1}\n'.format(board.user_state(), board.dealer_state())
-                await message.edit(embed=embed)
-                await asyncio.sleep(0.5)
-
-                while BlackJack.get_value(board.dealer) < 17:
-                    embed.description += '\nThe dealer hits'
-                    if not board.hit(board.dealer):
-                        embed.description += '\n{}'.format(board.dealer_state())
-                        embed.description += '\n\nThe Dealer went over 21, you win!'
+                # if react is hit
+                if str(reaction.emoji) == '🇭':
+                    embed.description += '\n\nYou hit'
+                    if not board.hit(board.player):
+                        embed.description += '\n{}\n\nYou went over 21, you lose!'.format(board.user_state())
+                        await message.edit(embed=embed)
                         board.end()
                     else:
-                        embed.description += '\n{}\n'.format(board.dealer_state())
+                        embed.description += '\n{}'.format(board.user_state())
+                        await message.edit(embed=embed)
+
+                # if react is stand
+                else:
+                    embed.description += '\n\nYou stand'
+                    embed.description += '\n{0}\n{1}\n'.format(board.user_state(), board.dealer_state())
                     await message.edit(embed=embed)
                     await asyncio.sleep(0.5)
 
-                if not board.isDone:
-                    board.end()
-                    p_value = BlackJack.get_value(board.player)
-                    d_value = BlackJack.get_value(board.dealer)
-                    embed.description += '\nYou have {0} while the dealer has {1}, '.format(p_value, d_value)
-                    if p_value > d_value:
-                        embed.description += 'you win!'
-                    elif p_value == d_value:
-                        embed.description += 'you tie!'
-                    else:
-                        embed.description += 'you lose!'
-                    await message.edit(embed=embed)
+                    while BlackJack.get_value(board.dealer) < 17:
+                        embed.description += '\nThe dealer hits'
+                        if not board.hit(board.dealer):
+                            embed.description += '\n{}'.format(board.dealer_state())
+                            embed.description += '\n\nThe Dealer went over 21, you win!'
+                            board.end()
+                            board.isWinner = 1
+                        else:
+                            embed.description += '\n{}\n'.format(board.dealer_state())
+                        await message.edit(embed=embed)
+                        await asyncio.sleep(0.5)
 
-        if not user.bot:
-            await message.remove_reaction(reaction, user)
+                    if not board.isDone:
+                        board.end()
+                        p_value = BlackJack.get_value(board.player)
+                        d_value = BlackJack.get_value(board.dealer)
+                        embed.description += '\nYou have {0} while the dealer has {1}, '.format(p_value, d_value)
+                        if p_value > d_value:
+                            embed.description += 'you win!'
+                            board.isWinner = 1
+                        elif p_value == d_value:
+                            embed.description += 'you tie!'
+                            board.isWinner = 0
+                        else:
+                            embed.description += 'you lose!'
+                        await message.edit(embed=embed)
+            print(board.isWinner)
+            if board.isWinner == 1:
+                database.add_coins(ctx.message.author.id, coins)
+            elif board.isWinner == -1:
+                database.add_coins(ctx.message.author.id, -coins)
+            elif board.isWinner == 0:
+                pass
+
+            if user:
+                await message.remove_reaction(reaction, user)
 
 
 @bot.command(name='caps')
