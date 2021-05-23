@@ -57,7 +57,8 @@ def read_hand(hand: list):
 class BlackJackBoard:
 
     def __init__(self):
-        self.deck = [*range(0, 52)]
+        # 4 decks
+        self.deck = [*range(0, 208)]
         self.dealer = []
         self.player = []
         self.isDone = False
@@ -87,9 +88,9 @@ class BlackJackBoard:
             return False
 
     def board_state(self, user):
-        state = '{0}: {1}\n The dealer has {2} cards'.format(user, read_hand(self.player), len(self.dealer))
+        state = 'Your hand: {0}\n The dealer has {1} cards, the first is {2}'\
+            .format(read_hand(self.player), len(self.dealer), convert_to_card(convert_to_value(self.dealer[0])))
         return state
 
     def end(self):
         self.isDone = True
-

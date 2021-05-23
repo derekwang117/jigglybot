@@ -73,9 +73,8 @@ async def blackjack(ctx):
 
     board = BlackJackBoard()
     embed = discord.Embed(title='Blackjack with {}'.format(ctx.message.author),
-                          description='Your cards are {}\n\n'
-                                      'React H to hit and S to stand\n'
-                                      '====================='.format(BlackJack.read_hand(board.player)))
+                          description='{}\n====================='
+                          .format(board.board_state(ctx.message.author), BlackJack.read_hand(board.player)))
     message = await ctx.channel.send(embed=embed)
     await message.add_reaction('🇭')
     await message.add_reaction('🇸')
@@ -90,7 +89,7 @@ async def blackjack(ctx):
             # if react is hit
             if str(reaction.emoji) == '🇭':
                 if not board.hit(board.player):
-                    embed.description += '\n\n{0}\n\n{1} went over 21, you bust'.format(board.board_state(user), user)
+                    embed.description += '\n\n{}\n\nYou went over 21, you bust'.format(board.board_state(user))
                     await message.edit(embed=embed)
                     board.end()
                 else:
@@ -101,7 +100,8 @@ async def blackjack(ctx):
                             board.end()
                         else:
                             embed.description += '\n\n{}'.format(board.board_state(user))
-                    embed.description += '\n\n{}'.format(board.board_state(user))
+                    else:
+                        embed.description += '\n\n{}'.format(board.board_state(user))
                     await message.edit(embed=embed)
 
             # if react is stand
@@ -109,7 +109,7 @@ async def blackjack(ctx):
                 board.end()
                 p_value = BlackJack.get_value(board.player)
                 d_value = BlackJack.get_value(board.dealer)
-                embed.description += '\n\n{0} has {1} while the dealer has {2}, '.format(user, p_value, d_value)
+                embed.description += '\n\nYou have {0} while the dealer has {1}, '.format(p_value, d_value)
                 if p_value > d_value:
                     embed.description += 'you win!'
                 else:
