@@ -73,8 +73,10 @@ async def blackjack(ctx):
 
     board = BlackJackBoard()
     embed = discord.Embed(title='Blackjack with {}'.format(ctx.message.author),
-                          description='{}\n\nReact H to hit and S to stand\n====================='
-                          .format(board.board_state(ctx.message.author), BlackJack.read_hand(board.player)))
+                          description='React H to hit and S to stand\n\n'
+                                      '{0}\n{1}\n'
+                                      '====================='
+                          .format(board.user_state(), board.dealer_start()))
     message = await ctx.channel.send(embed=embed)
     await message.add_reaction('🇭')
     await message.add_reaction('🇸')
@@ -88,35 +90,45 @@ async def blackjack(ctx):
         else:
             # if react is hit
             if str(reaction.emoji) == '🇭':
+                embed.description += '\n\nYou hit'
                 if not board.hit(board.player):
-                    embed.description += '\n\n{}\n\nYou went over 21, you bust'.format(board.board_state(user))
+                    embed.description += '\n{}\n\nYou went over 21, you bust'.format(board.user_state())
                     await message.edit(embed=embed)
                     board.end()
                 else:
-                    if BlackJack.get_value(board.dealer) < 17:
-                        if not board.hit(board.dealer):
-                            embed.description += '\n\n{}'.format(board.board_state(user))
-                            embed.description += '\n\nThe Dealer went over 21, you win!'
-                            board.end()
-                        else:
-                            embed.description += '\n\n{}'.format(board.board_state(user))
-                    else:
-                        embed.description += '\n\n{}'.format(board.board_state(user))
+                    embed.description += '\n{}'.format(board.user_state())
                     await message.edit(embed=embed)
 
             # if react is stand
             else:
-                board.end()
-                p_value = BlackJack.get_value(board.player)
-                d_value = BlackJack.get_value(board.dealer)
-                embed.description += '\n\nYou have {0} while the dealer has {1}, '.format(p_value, d_value)
-                if p_value > d_value:
-                    embed.description += 'you win!'
-                elif p_value == d_value:
-                    embed.description += 'you tie!'
-                else:
-                    embed.description += 'you lose!'
+                embed.description += '\n\nYou stand'
+                embed.description += '\n{0}\n{1}\n'.format(board.user_state(), board.dealer_state())
                 await message.edit(embed=embed)
+                await asyncio.sleep(0.5)
+
+                while BlackJack.get_value(board.dealer) < 17:
+                    embed.description += '\nThe dealer hits'
+                    if not board.hit(board.dealer):
+                        embed.description += '\n{}'.format(board.dealer_state())
+                        embed.description += '\n\nThe Dealer went over 21, you win!'
+                        board.end()
+                    else:
+                        embed.description += '\n{}\n'.format(board.dealer_state())
+                    await message.edit(embed=embed)
+                    await asyncio.sleep(0.5)
+
+                if not board.isDone:
+                    board.end()
+                    p_value = BlackJack.get_value(board.player)
+                    d_value = BlackJack.get_value(board.dealer)
+                    embed.description += '\nYou have {0} while the dealer has {1}, '.format(p_value, d_value)
+                    if p_value > d_value:
+                        embed.description += 'you win!'
+                    elif p_value == d_value:
+                        embed.description += 'you tie!'
+                    else:
+                        embed.description += 'you lose!'
+                    await message.edit(embed=embed)
 
         if not user.bot:
             await message.remove_reaction(reaction, user)

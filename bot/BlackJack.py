@@ -11,25 +11,17 @@ def convert_to_value(x):
 
 
 def convert_to_card(x):
-    if x < 13:
-        suit = 'Clubs'
-    elif x < 26:
-        suit = 'Diamonds'
-    elif x < 39:
-        suit = 'Hearts'
-    else:
-        suit = 'Spades'
     x = x % 13
     if x == 0:
         card = 'Ace'
-    elif x == 11:
+    elif x == 10:
         card = 'Jack'
-    elif x == 12:
+    elif x == 11:
         card = 'Queen'
-    elif x == 13:
+    elif x == 12:
         card = 'King'
     else:
-        card = str(x)
+        card = str(x+1)
     return '{0}'.format(card)
 
 
@@ -48,10 +40,10 @@ def get_value(hand: list):
 
 
 def read_hand(hand: list):
-    list = []
+    read = []
     for card in hand:
-        list.append(convert_to_card(convert_to_value(card)))
-    return list
+        read.append(convert_to_card(card))
+    return read
 
 
 class BlackJackBoard:
@@ -80,16 +72,16 @@ class BlackJackBoard:
             return False
         return True
 
-    def check_win(self):
-        self.isDone = True
-        if get_value(self.player) > get_value(self.dealer):
-            return True
-        else:
-            return False
+    def user_state(self):
+        state = 'Your hand: {}'.format(read_hand(self.player))
+        return state
 
-    def board_state(self, user):
-        state = 'Your hand: {0}\n The dealer has {1} cards, the first is {2}'\
-            .format(read_hand(self.player), len(self.dealer), convert_to_card(convert_to_value(self.dealer[0])))
+    def dealer_state(self):
+        state = "The dealer: {}".format(read_hand(self.dealer))
+        return state
+
+    def dealer_start(self):
+        state = "The dealer's first card is {}".format(convert_to_card(self.dealer[0]))
         return state
 
     def end(self):
