@@ -219,7 +219,9 @@ async def help(ctx):
         description='help: Shows this message\n'
                     'ping: pong\n'
                     'eject: Vote to kick a member from vc\n'
-                    'spike: Spike a member down 8 channels and brings them back')
+                    'spike: Spike a member down 8 channels and brings them back\n'
+                    'deathroll: WoW style gambling\n'
+                    'blackjack: 1 player blackjack (no actual points yet)')
     await ctx.channel.send(embed=embed)
 
 
