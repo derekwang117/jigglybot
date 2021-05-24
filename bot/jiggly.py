@@ -87,10 +87,11 @@ async def blackjack(ctx, coins: int = 0):
     else:
         board = BlackJackBoard()
         embed = discord.Embed(title='Blackjack with {}'.format(ctx.message.author),
-                              description='React H to hit and S to stand\n\n'
-                                          '{0}\n{1}\n'
+                              description='You wager {0} coins\n'
+                                          'React H to hit and S to stand\n\n'
+                                          '{1}\n{2}\n'
                                           '====================='
-                              .format(board.user_state(), board.dealer_start()))
+                              .format(coins, board.user_state(), board.dealer_start()))
         message = await ctx.channel.send(embed=embed)
 
         reaction = None
@@ -263,7 +264,7 @@ async def help(ctx):
                     'eject: Vote to kick a member from vc\n'
                     'spike: Spike a member down 8 channels and brings them back\n'
                     'deathroll: WoW style gambling\n'
-                    'blackjack: 1 player blackjack (no actual points yet)')
+                    'blackjack: 1 player blackjack (Enter value after blackjack to specify how much to wager)')
     await ctx.channel.send(embed=embed)
 
 
