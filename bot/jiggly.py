@@ -120,6 +120,7 @@ async def blackjack(ctx, coins: int = 0):
 
         if BlackJack.get_value(board.dealer) == 21:
             embed.description += '\nThe dealer hit blackjack, you lose!'
+            await message.edit(embed=embed)
             board.end()
             database.add_coins(ctx.message.author.id, -coins)
 
@@ -177,14 +178,14 @@ async def blackjack(ctx, coins: int = 0):
                         else:
                             embed.description += 'you lose!'
                         await message.edit(embed=embed)
-            board.end()
-            if board.isWinner == 1:
-                database.add_coins(ctx.message.author.id, coins)
-            elif board.isWinner == -1:
-                database.add_coins(ctx.message.author.id, -coins)
 
             if user:
                 await message.remove_reaction(reaction, user)
+
+        if board.isWinner == 1:
+            database.add_coins(ctx.message.author.id, coins)
+        elif board.isWinner == -1:
+            database.add_coins(ctx.message.author.id, -coins)
 
 
 @bot.command(name='caps')
