@@ -41,6 +41,19 @@ async def ping(ctx):
 
 
 @bot.command()
+async def fizzbuzz(ctx, upper: int):
+    for number in range(1, upper + 1):
+        string = ""
+        if number % 3 == 0:
+            string += "fizz"
+        if number % 5 == 0:
+            string += "buzz"
+        if string == "":
+            string += str(number)
+        await ctx.channel.send(string)
+
+
+@bot.command()
 async def roll(ctx, arg: int):
     x = random.randint(1, arg)
     await ctx.channel.send('{0} rolls {1} (1-{2})'.format(ctx.message.author, x, arg))
