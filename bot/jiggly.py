@@ -4,6 +4,7 @@ import random
 
 import discord
 from discord.ext import commands
+from discord.ext.commands import BucketType
 
 import BlackJack
 from BlackJack import BlackJackBoard
@@ -85,6 +86,13 @@ async def coins(ctx):
 
 
 @bot.command()
+@commands.cooldown(1, 60*60*23, BucketType.user)
+async def gank(ctx):
+    database.add_coins(ctx.message.author.id, 100)
+    await ctx.channel.send("{} has ganked and gotten 100 coins".format(ctx.message.author))
+
+
+@bot.command()
 async def blackjack(ctx, coins: int = 0):
     def check(reaction, user):
         x = user == ctx.message.author
@@ -109,6 +117,11 @@ async def blackjack(ctx, coins: int = 0):
 
         reaction = None
         user = None
+
+        if BlackJack.get_value(board.dealer) == 21:
+            embed.description += '\nThe dealer hit blackjack, you lose!'
+            board.end()
+            database.add_coins(ctx.message.author.id, -coins)
 
         await message.add_reaction('🇭')
         await message.add_reaction('🇸')
@@ -164,13 +177,11 @@ async def blackjack(ctx, coins: int = 0):
                         else:
                             embed.description += 'you lose!'
                         await message.edit(embed=embed)
-            print(board.isWinner)
+            board.end()
             if board.isWinner == 1:
                 database.add_coins(ctx.message.author.id, coins)
             elif board.isWinner == -1:
                 database.add_coins(ctx.message.author.id, -coins)
-            elif board.isWinner == 0:
-                pass
 
             if user:
                 await message.remove_reaction(reaction, user)
