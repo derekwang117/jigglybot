@@ -26,7 +26,7 @@ async def on_message(message):
         return
 
     if message.guild.name == 'hoo haa':
-        if 'ken' in message.content.lower() or 'pikachu' in message.content.lower():
+        if 'ken' in message.content.lower() or 'ryu' in message.content.lower() or 'pikachu' in message.content.lower():
             await message.channel.send('busted')
 
     await bot.process_commands(message)
