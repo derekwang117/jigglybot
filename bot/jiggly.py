@@ -25,9 +25,14 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if message.guild.name == 'hoo haa':
+    if message.guild.id == 234850044124069888:
         if 'ken' in message.content.lower() or 'ryu' in message.content.lower() or 'pikachu' in message.content.lower():
             await message.channel.send('busted')
+
+    if message.guild.id == 655969060248616990:
+        if message.author.discriminator == "1906":
+            if "kys" in message.content:
+                await message.channel.send("https://cdn.discordapp.com/attachments/656232507049639966/928386071782363146/unknown.png")
 
     await bot.process_commands(message)
 
