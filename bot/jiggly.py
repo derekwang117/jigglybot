@@ -31,7 +31,7 @@ async def on_message(message):
 
     if message.guild.id == 655969060248616990:
         if message.author.discriminator == "1906":
-            if "kys" in message.content:
+            if "kys" in message.content or "kill yourself" in message.content:
                 await message.channel.send("https://cdn.discordapp.com/attachments/656232507049639966/928386071782363146/unknown.png")
 
     await bot.process_commands(message)
