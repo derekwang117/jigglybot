@@ -271,18 +271,19 @@ async def eject(ctx, arg: discord.Member = None):
 
 @bot.command(name='spike')
 async def spike_blast_zone(ctx, arg: discord.Member = None):
-    vc_list = []
-    for channel in ctx.guild.voice_channels:
-        vc_list.append(channel)
-    original_vc = arg.voice.channel
-    x = vc_list.index(original_vc)
-    x = 0 - (len(vc_list) - x - 1)
-    vc_list = vc_list[x:]
-    vc_list = vc_list[:8]
-    for vc in vc_list:
-        await arg.move_to(vc)
-    await arg.move_to(original_vc)
-    await ctx.channel.send("{} got spiked (-1 stock)".format(arg))
+    if (ctx.message.author.discriminator != "5749" or ctx.message.author.discriminator != "4108"):
+        vc_list = []
+        for channel in ctx.guild.voice_channels:
+            vc_list.append(channel)
+        original_vc = arg.voice.channel
+        x = vc_list.index(original_vc)
+        x = 0 - (len(vc_list) - x - 1)
+        vc_list = vc_list[x:]
+        vc_list = vc_list[:8]
+        for vc in vc_list:
+            await arg.move_to(vc)
+        await arg.move_to(original_vc)
+        await ctx.channel.send("{} got spiked (-1 stock)".format(arg))
 
 
 @bot.command()
