@@ -271,7 +271,7 @@ async def eject(ctx, arg: discord.Member = None):
 
 @bot.command(name='spike')
 async def spike_blast_zone(ctx, arg: discord.Member = None):
-    if (ctx.message.author.discriminator != "5749" or ctx.message.author.discriminator != "4108"):
+    if (ctx.message.author.discriminator != "5749" and ctx.message.author.discriminator != "4108"):
         vc_list = []
         for channel in ctx.guild.voice_channels:
             vc_list.append(channel)
