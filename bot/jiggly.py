@@ -36,7 +36,7 @@ async def on_message(message):
                 await message.channel.send('loser!!!')
             elif choice < 9:
                 await message.channel.send('ur mom!!!')
-            else:
+            elif choice < 10:
                 await message.channel.send("8th place :)")
 
     if message.guild.id == 655969060248616990:
