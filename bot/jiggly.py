@@ -28,7 +28,7 @@ async def on_message(message):
     if message.guild.id == 234850044124069888:
         if 'ken' in message.content.lower() or 'ryu' in message.content.lower() or 'pikachu' in message.content.lower():
             await message.channel.send('busted')
-        if message.author.id == 212059667960954881:
+        if message.author.id == 249331440011968516:
             choice = random.randrange(10)
             if choice < 3:
                 await message.channel.send('cringe!!!')
