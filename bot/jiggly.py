@@ -28,6 +28,16 @@ async def on_message(message):
     if message.guild.id == 234850044124069888:
         if 'ken' in message.content.lower() or 'ryu' in message.content.lower() or 'pikachu' in message.content.lower():
             await message.channel.send('busted')
+        if message.author.id == 211225675753979904:
+            choice = random.randrange(10)
+            if choice < 3:
+                await message.channel.send('cringe!!!')
+            elif choice < 6:
+                await message.channel.send('loser!!!')
+            elif choice < 9:
+                await message.channel.send('ur mom!!!')
+            else:
+                await message.channel.send("8th place :)")
 
     if message.guild.id == 655969060248616990:
         if message.author.discriminator == "1906":
